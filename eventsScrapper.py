@@ -23,9 +23,4 @@ def events_of_the_day(month, day):
     page = get_page(url)
     raw_events = page.find_all(class_ = "event")
     events = [event.text for event in raw_events]
-    print(events[0])
-
-
-events_of_the_day("july", 10)
-# get_page("https://www.onthisday.com/day/july/10")
-# print(generate_url('july', 5))
+    return events

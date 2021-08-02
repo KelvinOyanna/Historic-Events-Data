@@ -130,3 +130,4 @@ dmypy.json
 
 # Local Python files
 /collect_events.py
+/events.json
