@@ -25,4 +25,3 @@ def export_data():
         os.mkdir('RawEventsData')
     events_df = create_events()
     events_df.to_csv('RawEventsData/events.csv', index= False)
-# Export data to json
