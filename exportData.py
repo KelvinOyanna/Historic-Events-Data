@@ -16,7 +16,8 @@ def create_events():
     for date in date_range(start_date, end_date):
         month = date.strftime("%B").lower()
         event_rows = scrapper.events_of_the_day(month, date.day)
-        month_df = pd.DataFrame(event_rows, columns=['Events'])
+        month_df = pd.DataFrame(event_rows, columns=['Event'])
+        month_df['Date'] = date
         events_df = events_df.append(month_df)
     return events_df
 
@@ -25,3 +26,7 @@ def export_data():
         os.mkdir('RawEventsData')
     events_df = create_events()
     events_df.to_csv('RawEventsData/events.csv', index= False)
+    print('Sucessfully written data to a csv file')
+
+if __name__== '__main_-':
+    export_data()
