@@ -15,6 +15,8 @@ import os
 # connection_string = f"postgresql+psycopg2://{config[0]}:{config[1]}@localhost/{config[2]}"
 # engine = create_engine(connection_string)
 
+# A function to fetch database credentials from the environment variable file(.env), establish
+# a connection to the database and renturn a connection engine.
 def db_connection():
     config = list(dotenv_values('.env').values())
     connection_string = f"postgresql+psycopg2://{config[0]}:{config[1]}@localhost/{config[2]}"
@@ -24,6 +26,7 @@ def db_connection():
     except ConnectionError:
         print('Unable to establish a connection to the database. Please check your database credentials')
 
+# A function to process/transform the scrapped data before it's loaded to a database
 def transformData():
     # A helper function to extract the day and month in history an event occoured
     def extractMonthDay(date_coln):
@@ -49,12 +52,13 @@ def transformData():
         return events_data[['Month_Day', 'Year_Occured', 'Event']]
     except FileNotFoundError:
         print('Kindly check that events.csv & its folder exist and try again')
-    
+# Function to write the processed data to an external file   
 def write_transformed_data_to_file():
     transformed_data = transformData()
     try:
         if os.path.exists(os.path.abspath('./') + '\ProcessedData') == False:
             os.mkdir('ProcessedData')
+        else:
             transformed_data.to_csv('ProcessedData/events.csv', index= False)
             print('Data sucessfully written to file...')
     except SystemError:
