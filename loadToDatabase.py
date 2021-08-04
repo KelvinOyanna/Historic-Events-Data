@@ -1,3 +1,4 @@
+from io import FileIO
 from pandas.core.frame import DataFrame
 from exportData import export_data
 import pandas as pd
@@ -5,6 +6,7 @@ import psycopg2
 from datetime import datetime as dt
 from typing import Dict
 from dotenv import dotenv_values
+import os
 
 # Function to get database credencials from the environment virable
 def credentials() -> Dict:
@@ -28,7 +30,8 @@ def transformData() -> DataFrame:
         event = ' '.join(event.split(' ')[1:])
         return event
     try:
-        events_data = pd.read_csv('RawEventsData/events.csv') #  Read event data from event file
+        #  Read event data from event file
+        events_data = pd.read_csv('RawEventsData/events.csv') 
         events_data['This Day'] = events_data['Date'].apply(extractMonthDay)
         events_data['Year Occured'] = events_data['Event'].apply(extractYearEventOccoured)
         events_data['Event'] = events_data['Event'].apply(extractEvent)
@@ -36,9 +39,12 @@ def transformData() -> DataFrame:
     except FileNotFoundError:
         print('Kindly check that events.csv & its folder exist and try again')
     
+def write_transformed_data_to_file():
+    transformed_data = transformData()
+    try:
+        if not os.path.exists(os.path.abspath('./') + '\ProcessedData'):
+            os.mkdir('ProcessedData')
+            transformed_data.to_csv('ProcessedData/events.csv')
+    except SystemError :
+        print('Could not write the data to an external file')
 
-
-
-#def loadToPostgres():
-df = transformData()
-print(df.head(10))
