@@ -1,7 +1,4 @@
-from io import FileIO
 from pandas.core.frame import DataFrame
-from sqlalchemy.sql import schema
-from exportData import export_data
 import pandas as pd
 import psycopg2
 from sqlalchemy import create_engine, engine
