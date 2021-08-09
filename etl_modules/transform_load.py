@@ -7,12 +7,7 @@ from typing import Dict
 from dotenv import dotenv_values
 import os
 
-# Function to get database credencials from the environment virable and create database connection
-# config = list(dotenv_values('.env').values())
-# connection_string = f"postgresql+psycopg2://{config[0]}:{config[1]}@localhost/{config[2]}"
-# engine = create_engine(connection_string)
-
-# A function to fetch database credentials from the environment variable file(.env), establish
+# function to get database credentials from the environment variable file(.env), establish
 # a connection to the database and renturn a connection engine.
 def db_connection():
     config = list(dotenv_values('.env').values())
@@ -24,8 +19,8 @@ def db_connection():
         print('Unable to establish a connection to the database. Please check your database credentials')
 
 # A function to process/transform the scrapped data before it's loaded to a database
-def transformData():
-    # A helper function to extract the day and month in history an event occoured
+def transformData(events_data):
+    # A helper function to extract the day and month in history, an event occoured
     def extractMonthDay(date_coln):
         month_day = dt.strptime(str(date_coln), '%Y-%m-%d').date().strftime('%d %B')
         return month_day
@@ -40,38 +35,31 @@ def transformData():
     def extractEvent(event):
         event = ' '.join(event.split(' ')[1:])
         return event
-    try:
-        #  Read event data from event file
-        events_data = pd.read_csv('RawEventsData/events.csv') 
-        events_data['Month_Day'] = events_data['Date'].apply(extractMonthDay)
-        events_data['Year_Occured'] = events_data['Event'].apply(extractYearEventOccoured)
-        events_data['Event'] = events_data['Event'].apply(extractEvent)
-        return events_data[['Month_Day', 'Year_Occured', 'Event']]
-    except FileNotFoundError:
-        print('Kindly check that events.csv & its folder exist and try again')
+
+    events_data['Month_Day'] = events_data['Date'].apply(extractMonthDay)
+    events_data['Year_Occured'] = events_data['Event'].apply(extractYearEventOccoured)
+    events_data['Event'] = events_data['Event'].apply(extractEvent)
+    return events_data[['Month_Day', 'Year_Occured', 'Event']]
+
+
 # Function to write the processed data to an external file   
-def write_transformed_data_to_file():
-    transformed_data = transformData()
+def write_tranformed_data(events_data):
     try:
-        if os.path.exists(os.path.abspath('./') + '\ProcessedData') == False:
-            os.mkdir('ProcessedData')
+        if os.path.exists(os.path.abspath('./') + '\ProcessedData'):
+            events_data.to_csv('ProcessedData/events.csv', index= False)
+            print('transformed data sucessfully written to file...')
         else:
-            transformed_data.to_csv('ProcessedData/events.csv', index= False)
-            print('Data sucessfully written to file...')
+            os.mkdir('ProcessedData')
+            events_data.to_csv('ProcessedData/events.csv', index= False)
+            print('transformed data sucessfully written to file...')
     except SystemError:
         print('Could not write the data to an external file')
 
 # Function to load data to a postgresql database
-def load_data_to_db():
+def load_data_to_db(events_data):
     engine = db_connection()
-    transformed_data = transformData()
     try:
-        transformed_data.to_sql('events_history', con = engine, if_exists= 'append', index= False)
-        print('Data sucessfully loaded to database...')
+        events_data.to_sql('events_history', con = engine, if_exists= 'append', index= False)
+        print('transformed data sucessfully loaded to database...')
     except ConnectionError:
         print('Unable to establish a connection to the database. Please check your database credentials')
-
-if __name__== '__main__':
-    write_transformed_data_to_file()
-    load_data_to_db()
-

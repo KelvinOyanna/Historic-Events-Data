@@ -10,14 +10,12 @@ def date_range(start_date: dt.date, end_date: dt.date) -> Iterator[dt.date]:
         yield start_date + dt.timedelta(n)
 
 # Function to create event for the range of date from above
-def create_events():
+def create_events_data(start_date, end_date):
     """
     This function generate the month and day that is passed into the request made 
     from the eventScrapper function to the website - www.onthisday.com
     """
     events_df = pd.DataFrame()
-    start_date = dt.date(2020, 1, 1)
-    end_date = dt.date(2020, 1, 10 )
     for date in date_range(start_date, end_date):
         month = date.strftime("%B").lower()
         event_rows = scrapper.events_of_the_day(month, date.day)
@@ -27,16 +25,15 @@ def create_events():
     return events_df
 
 # A function to export data as is, to an external csv file
-def export_data():
+def write_raw_data(events_data):
     """
     This function uses the os module to create a new directory - RawEventsData, if it
     does not currently exist where it saves the exported data.
     """
-    if not os.path.exists(os.path.abspath('./') + '\RawEventsData'):
+    if os.path.exists(os.path.abspath('./') + '\RawEventsData'):
+        events_data.to_csv('RawEventsData/events.csv', index= False)
+        print('raw data sucessfully written to a csv file')
+    else:
         os.mkdir('RawEventsData')
-    events_df = create_events()
-    events_df.to_csv('RawEventsData/events.csv', index= False)
-    print('Sucessfully written data to a csv file')
-
-if __name__== '__main_-':
-    export_data()
+        events_data.to_csv('RawEventsData/events.csv', index= False)
+        print('raw data sucessfully written to a csv file')

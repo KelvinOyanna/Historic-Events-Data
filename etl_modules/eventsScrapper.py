@@ -13,8 +13,8 @@ def generate_url(month: str, day: str) -> str:
     return url
 
 def get_page(url: str) -> Iterator[str]:
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, "html.parser")
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
     return soup
 
 def events_of_the_day(month: str, day: int) -> List[str]:
